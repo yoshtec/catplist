@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-handle Metadata information from ios.
-Reads and unwraps all kind of plist in use for albums e.g.
- *.facemetadata, *.albummetadata, *.foldermetadata
+Print .plist files
 
 For documentation visit: https://github.com/yoshtec/catplist
 """
@@ -14,7 +12,6 @@ from pathlib import Path
 import uuid
 import pprint
 import click
-from click_default_group import DefaultGroup
 import plistlib
 from plistlib import InvalidFileException
 import datetime
@@ -51,11 +48,20 @@ TYPE_PHMFEATUREENCODER = "PHMemoryFeatureEncoder"
 TYPE_NSKEYEDARCHIVER = "NSKeyedArchiver"
 
 HEAD_PLIST = b"bplist00"
+# Encountered in some ios PhotoMetadata files
+HEAD_MALFORMED_PLIST = b"\n\xd3\x04bplist00"
 HEAD_XZ = b"\xfd7zXZ"
 
 
 def _is_plist(b: bytes):
     return len(b) > len(HEAD_PLIST) and b[0 : len(HEAD_PLIST)] == HEAD_PLIST
+
+
+def _is_malformed_plist(b: bytes):
+    return (
+        len(b) > len(HEAD_MALFORMED_PLIST)
+        and b[0 : len(HEAD_MALFORMED_PLIST)] == HEAD_MALFORMED_PLIST
+    )
 
 
 def _is_xz(b: bytes):
@@ -71,8 +77,7 @@ def _unwrap_bytes(b, uuids=False):
     if _is_plist(b):
         return unwrap(plistlib.loads(b))
 
-    HEAD_FFF = b"\n\xd3\x04bplist00"
-    if len(b) > len(HEAD_FFF) and b[0 : len(HEAD_FFF)] == HEAD_FFF:
+    if _is_malformed_plist(b):
         return unwrap(plistlib.loads(b[3:]))
 
     if uuids:
@@ -246,37 +251,16 @@ class BaseMetadataFile:
         pprint.pp(self.metadata, width=width)
 
 
-class PhotosMetadataFile(BaseMetadataFile):
-    def __init__(self, file: Path):
-        BaseMetadataFile.__init__(self, file=file)
-
-        self.asset_uuids = []
-        self.title = ""
-        self.uuid = None
-        self.isInTrash = False
-
-        if KEY_UUID in self.metadata:
-            self.uuid = self.metadata[KEY_UUID]
-
-        if KEY_TITLE in self.metadata:
-            self.title = self.metadata[KEY_TITLE]
-
-        if KEY_ASSETUUIDS in self.metadata:
-            self.asset_uuids = self.metadata[KEY_ASSETUUIDS]
-
-        if KEY_TRASH in self.metadata:
-            self.isInTrash = bool(self.metadata[KEY_TRASH])
-
-    def get_picture_uuids(self):
-        return self.asset_uuids
-
-
 @click.command()
 @click.argument(
     "file", nargs=-1, type=click.Path(exists=True, file_okay=True, readable=True)
 )
 @click.option(
-    "--raw", "-R", default=False, is_flag=True, help="print raw plist contents, will not unpack nested plists"
+    "--raw",
+    "-R",
+    default=False,
+    is_flag=True,
+    help="print raw plist contents, will not unpack nested data & plists",
 )
 @click.option(
     "--recurse",
@@ -288,17 +272,6 @@ class PhotosMetadataFile(BaseMetadataFile):
 def catplist(file=None, raw=False, recurse=False):
     """
     This is catplist: display your plist for human reading and easy grepping.
-
-    display contents of plist metadata files. helps to understand where and how data
-    is stored on your ios device. Reads and displays:
-
-    \b
-        *.albummetadata
-        *.memorymetadata
-        *.facemetadata
-        *.foldermetadata
-
-    and general .plist like files.
     """
 
     stack: list = []

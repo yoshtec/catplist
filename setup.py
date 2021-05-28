@@ -1,6 +1,6 @@
 import setuptools
 
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -24,6 +24,6 @@ setuptools.setup(
         "Operating System :: POSIX",
         "Operating System :: MacOS",
     ],
-    keywords="plist, ios, iphone, ipad",
+    keywords="plist, apple",
     python_requires=">=3.5",
 )
