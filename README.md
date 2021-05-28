@@ -8,8 +8,9 @@ in a readable and comprehensible manner.
 
 While `plistutil` exists to convert plists from binary to xml and vice versa plists are usually still hard to 
 read for humans or parse from the command line with tools like grep. `catplist` aims to make this task easier.
-It main focus is to print a **human readable** and parsable representation of the plist. Additionally plists
-often contain binary data or some strange nested key value structures originating from [NSArchiver](https://developer.apple.com/documentation/foundation/nsarchiver)
+It main focus is to print a **human-readable** and parsable representation of the plist. Additionally, plists
+often contain binary data or some strange nested key value structures originating from 
+[NSArchiver](https://developer.apple.com/documentation/foundation/nsarchiver)
 or [NSKeyedArchiver](https://developer.apple.com/documentation/foundation/nskeyedarchiver) serialization. 
 `catplist` aims to deliver a good readable approximation by unwrapping those structures.
 
@@ -49,4 +50,11 @@ Options:
   -R, --raw      print raw plist contents, will not unpack nested data & plists
   -r, --recurse  recurse into subdirs, reads all files ignores non plist files
   --help         Show this message and exit.
+```
+
+## Install
+
+Installation via PyPi:
+```
+pip install catplist
 ```
