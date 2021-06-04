@@ -242,13 +242,16 @@ class BaseMetadataFile:
 
         self.metadata = unwrap(self.raw_metadata)
 
-    def dump_raw(self):
+    def dump(self, raw=False):
         width, lines = shutil.get_terminal_size()
-        pprint.pp(self.raw_metadata, width=width)
+        md = self.raw_metadata if raw else self.metadata
+        pprint.pp(md, width=width)
 
-    def dump(self):
-        width, lines = shutil.get_terminal_size()
-        pprint.pp(self.metadata, width=width)
+    def dump_json(self, raw=False):
+        import json
+
+        md = self.raw_metadata if raw else self.metadata
+        click.echo(json.dumps(md))
 
 
 @click.command()
@@ -269,9 +272,17 @@ class BaseMetadataFile:
     is_flag=True,
     help="recurse into subdirs, reads all files ignores non plist files",
 )
-def catplist(file=None, raw=False, recurse=False):
+@click.option(
+    "--format",
+    "-f",
+    "fmt",
+    default="python",
+    type=click.Choice(["python", "json"], case_sensitive=False),
+    help="format output in",
+)
+def catplist(file, raw, recurse, fmt):
     """
-    This is catplist: display your plist for human reading and easy grepping.
+    This is catplist: print plists for human reading and easy grepping.
     """
 
     stack: list = []
@@ -290,11 +301,10 @@ def catplist(file=None, raw=False, recurse=False):
             click.secho(f"Printing file {p}:", bold=True)
             try:
                 pm = BaseMetadataFile(p)
-                if raw:
-                    pm.dump_raw()
-                    click.echo("")
+                if fmt == "json":
+                    pm.dump_json(raw)
                 else:
-                    pm.dump()
+                    pm.dump(raw)
             except InvalidFileException as i:
                 click.echo(f" - is not a valid plist. Skipping over Error '{i}'.")
             click.echo("")

@@ -1,6 +1,6 @@
 import setuptools
 
-VERSION = "0.0.2"
+VERSION = "0.0.4"
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -10,11 +10,16 @@ setuptools.setup(
     version=VERSION,
     author="Yoshtec",
     author_email="yoshtec@gmail.com",
-    description="Display apple plist files in a readable and comprehensible way",
+    description="Print apple plist files in a readable and comprehensible way",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/yoshtec/catplist",
-    entry_points={"console_scripts": ["catplist = catplist.catplist:catplist"]},
+    entry_points={
+        "console_scripts": [
+            "catplist = catplist.catplist:catplist",
+            "plistcat = catplist.catplist:catplist",
+        ]
+    },
     packages=setuptools.find_packages(),
     install_requires=["click"],
     classifiers=[
@@ -22,8 +27,11 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Environment :: Console",
         "Operating System :: POSIX",
+        "Operating System :: POSIX :: Linux"
         "Operating System :: MacOS",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: OS Independent",
     ],
-    keywords="plist, apple",
+    keywords="plist, apple, cat",
     python_requires=">=3.5",
 )

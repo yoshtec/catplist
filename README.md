@@ -8,16 +8,16 @@ in a readable and comprehensible manner.
 
 While `plistutil` exists to convert plists from binary to xml and vice versa plists are usually still hard to 
 read for humans or parse from the command line with tools like grep. `catplist` aims to make this task easier.
-It main focus is to print a **human-readable** and parsable representation of the plist. Additionally, plists
-often contain binary data or some strange nested key value structures originating from 
+It's main focus is to print a **human-readable** and parsable representation of the plist. Additionally, plists
+often contain binary data, or some strange nested key value structures originating from 
 [NSArchiver](https://developer.apple.com/documentation/foundation/nsarchiver)
 or [NSKeyedArchiver](https://developer.apple.com/documentation/foundation/nskeyedarchiver) serialization. 
-`catplist` aims to deliver a good readable approximation by unwrapping those structures.
+`catplist` aims to deliver a good readable representation by unwrapping those structures. 
 
 Try it on some Metadata out of your iPhone Photo library like `*.albummetadata`, `*.memorymetadata`, `*.facemetadata`, 
 `*.foldermetadata` or just regular `*.plist` files. 
 
-For editing plists look for PlistBuddy, XCode, plutil.
+For editing and more accurate/original representation of plists or search for PlistBuddy, XCode, plutil. 
 
 ## Features
 
