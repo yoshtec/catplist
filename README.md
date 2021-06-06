@@ -22,11 +22,9 @@ For editing and more accurate/original representation of plists or search for Pl
 ## Features
 
 * wildcard support 
-* recurse into directories
-
+* recurse into directories with option `--recurse`
 * reads binary and xml plists
-  
-* NSArchiver: unwraps nsarchiver plists that just add an layer of indirectness into the key value store.
+* NSKeyedArchiver: unpacks NSKeyedArchiver plists that just add an layer of indirectness into the key value store. 
 * Nested plists: in some plists apple stores plist as a value. `catplist` unwraps those nested plists.
 * Interpretation of some of Binary Data stored within plists, usually consisting of:
   * UUID data
@@ -41,15 +39,18 @@ catplist myplist.plist
 
 ```
 > catplist --help
-
 Usage: catplist [OPTIONS] [FILE]...
 
-  This is catplist: display your plist for human reading and easy grepping.
+  This is catplist: print plists for human reading and easy grepping.
 
 Options:
-  -R, --raw      print raw plist contents, will not unpack nested data & plists
-  -r, --recurse  recurse into subdirs, reads all files ignores non plist files
-  --help         Show this message and exit.
+  -R, --raw                   print raw plist contents, will not unpack nested
+                              data & plists
+  -r, --recurse               recurse into subdirs, reads all files ignores non
+                              plist files
+  -f, --format [python|json]  format output in
+  --help                      Show this message and exit.
+
 ```
 
 ## Install
@@ -58,3 +59,9 @@ Installation via PyPi:
 ```
 pip install catplist
 ```
+
+
+## Known Bugs
+* valid plists with a date in year 0 will not be read since the underlying python 
+  datetime implementation is currently not allowing year 0 dates. 
+  See also [Python Issue 41083](https://bugs.python.org/issue41083)
