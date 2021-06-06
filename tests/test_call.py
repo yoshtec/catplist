@@ -6,7 +6,7 @@ class TestCatPlist:
     def test_integer(self):
         runner = CliRunner()
         result = runner.invoke(
-            catplist.catplist, ["./test/integers.plist"]
+            catplist.catplist, ["./tests/integers.plist"]
         )
         assert "{'integer1': 1, 'integer2': 100000}" in result.output
         assert result.exit_code == 0
@@ -14,7 +14,7 @@ class TestCatPlist:
     def test_strings(self):
         runner = CliRunner()
         result = runner.invoke(
-            catplist.catplist, ["./test/strings.plist"]
+            catplist.catplist, ["./tests/strings.plist"]
         )
         assert "{'stringdict': {'chinese': '他没喝啤酒', 'japanese': '日本語もできる', 'python': '🐍'}}" in result.output
         assert result.exit_code == 0
