@@ -14,13 +14,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
 
       - name: Install build and test dependencies
-        run: python -m pip install --user --upgrade build setuptools wheel pytest pytest-cov click
+        run: python -m pip install --user --upgrade build setuptools wheel pytest pytest-cov click ruamel.yaml
 
       - name: Run small tests
         run: python -m pytest
