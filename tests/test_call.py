@@ -40,8 +40,8 @@ class TestCatPlist:
         with open("README.md", "r", encoding="utf-8") as fh:
             long_description = fh.read()
 
-            #print(result.output)
-            #print(long_description)
+            print(result.output)
+            print(long_description)
             assert result.output in long_description
 
 
