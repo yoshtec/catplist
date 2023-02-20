@@ -253,6 +253,15 @@ class BaseMetadataFile:
         md = self.raw_metadata if raw else self.metadata
         click.echo(json.dumps(md))
 
+    def dump_yaml(self, raw=False):
+        from ruamel.yaml import YAML
+
+        yaml = YAML()
+
+        md = self.raw_metadata if raw else self.metadata
+        yaml.dump(md, sys.stdout)
+
+
 
 @click.command()
 @click.argument(
@@ -277,8 +286,8 @@ class BaseMetadataFile:
     "-f",
     "fmt",
     default="python",
-    type=click.Choice(["python", "json"], case_sensitive=False),
-    help="format output in",
+    type=click.Choice(["python", "json", "yaml"], case_sensitive=False),
+    help="format output in ...",
 )
 def catplist(file, raw, recurse, fmt):
     """
@@ -287,9 +296,9 @@ def catplist(file, raw, recurse, fmt):
 
     stack: list = []
     if not file:
-        click.echo(" - No file given! Usage: ")
-        click.echo(" catplist file")
-        return 0
+        click.echo(" - No file given! Usage: ", err=True)
+        click.echo(" catplist file", err=True)
+        return 1
 
     stack.extend(file)
 
@@ -303,10 +312,12 @@ def catplist(file, raw, recurse, fmt):
                 pm = BaseMetadataFile(p)
                 if fmt == "json":
                     pm.dump_json(raw)
+                elif fmt == "yaml":
+                    pm.dump_yaml(raw)
                 else:
                     pm.dump(raw)
             except InvalidFileException as i:
-                click.echo(f" - is not a valid plist. Skipping over Error '{i}'.")
+                click.echo(f" - is not a valid plist. Skipping over Error '{i}'.", err=True)
             click.echo("")
     sys.exit(0)
 

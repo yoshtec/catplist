@@ -19,6 +19,18 @@ class TestCatPlist:
         assert "{'stringdict': {'chinese': '他没喝啤酒', 'japanese': '日本語もできる', 'python': '🐍'}}" in result.output
         assert result.exit_code == 0
 
+    def test_strings_yaml(self):
+        runner = CliRunner()
+        result = runner.invoke(
+            catplist.catplist, ["--format yaml", "./tests/strings.plist"]
+        )
+        expected_result = """stringdict:
+  chinese: 他没喝啤酒
+  japanese: 日本語もできる
+  python: 🐍"""
+        assert expected_result in result.output
+        assert result.exit_code == 0
+
     # make sure the current help is also in the markdown
     def test_help_in_markdown(self):
         runner = CliRunner()
@@ -31,3 +43,5 @@ class TestCatPlist:
             #print(result.output)
             #print(long_description)
             assert result.output in long_description
+
+
