@@ -22,7 +22,7 @@ class TestCatPlist:
     def test_strings_yaml(self):
         runner = CliRunner()
         result = runner.invoke(
-            catplist.catplist, ["--format yaml", "./tests/strings.plist"]
+            catplist.catplist, ["--format", "yaml", "./tests/strings.plist"]
         )
         expected_result = """stringdict:
   chinese: 他没喝啤酒

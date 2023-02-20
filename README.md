@@ -39,18 +39,19 @@ catplist myplist.plist
 
 ```
 > catplist --help
-Usage: catplist [OPTIONS] [FILE]...
+Usage: catplist.py [OPTIONS] [FILE]...
 
   This is catplist: print plists for human reading and easy grepping.
 
 Options:
-  -R, --raw                   print raw plist contents, will not unpack nested
-                              data & plists
-  -r, --recurse               recurse into subdirs, reads all files ignores non
-                              plist files
+  -R, --raw                       print raw plist contents, will not unpack
+                                  nested data & plists
+  -r, --recurse                   recurse into subdirs, reads all files
+                                  ignores non plist files
   -f, --format [python|json|yaml]
-                              format output in ...
-  --help                      Show this message and exit.
+                                  format output in ...
+  --help                          Show this message and exit.
+
 
 ```
 
