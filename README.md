@@ -39,7 +39,7 @@ catplist myplist.plist
 
 ```
 > catplist --help
-Usage: catplist.py [OPTIONS] [FILE]...
+Usage: catplist [OPTIONS] [FILE]...
 
   This is catplist: print plists for human reading and easy grepping.
 
@@ -51,7 +51,6 @@ Options:
   -f, --format [python|json|yaml]
                                   format output in ...
   --help                          Show this message and exit.
-
 
 ```
 
