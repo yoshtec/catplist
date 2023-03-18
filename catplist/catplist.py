@@ -8,16 +8,17 @@ Print .plist files
 For documentation visit: https://github.com/yoshtec/catplist
 """
 
-from pathlib import Path
-import uuid
-import pprint
-import click
-import plistlib
-from plistlib import InvalidFileException
 import datetime
-import shutil
+import plistlib
+import pprint
 import re
+import shutil
 import sys
+import uuid
+from pathlib import Path
+from plistlib import InvalidFileException
+
+import click
 
 UUID_REGEX = re.compile(
     "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\Z", re.I
@@ -250,17 +251,23 @@ class BaseMetadataFile:
     def dump_json(self, raw=False):
         import json
 
+        class UUIDEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, uuid.UUID):
+                    # if the obj is uuid, we simply return the value of uuid
+                    return obj.hex
+                return json.JSONEncoder.default(self, obj)
+
         md = self.raw_metadata if raw else self.metadata
         click.echo(json.dumps(md))
 
     def dump_yaml(self, raw=False):
         from ruamel.yaml import YAML
 
-        yaml = YAML()
+        yaml = YAML(typ='unsafe')
 
         md = self.raw_metadata if raw else self.metadata
         yaml.dump(md, sys.stdout)
-
 
 
 @click.command()
