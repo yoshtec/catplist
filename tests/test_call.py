@@ -64,4 +64,4 @@ class TestCatPlist:
         result = runner.invoke(
             catplist.catplist, ["--format", "yaml", "./tests/uuid.plist"]
         )
-        assert "" == result.output
+        assert " " == result.output
