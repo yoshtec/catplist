@@ -55,18 +55,15 @@ HEAD_XZ = b"\xfd7zXZ"
 
 
 def _is_plist(b: bytes):
-    return len(b) > len(HEAD_PLIST) and b[0 : len(HEAD_PLIST)] == HEAD_PLIST
+    return b.startswith(HEAD_PLIST)
 
 
 def _is_malformed_plist(b: bytes):
-    return (
-        len(b) > len(HEAD_MALFORMED_PLIST)
-        and b[0 : len(HEAD_MALFORMED_PLIST)] == HEAD_MALFORMED_PLIST
-    )
+    return b.startswith(HEAD_MALFORMED_PLIST)
 
 
 def _is_xz(b: bytes):
-    return len(b) > len(HEAD_XZ) and b[0 : len(HEAD_XZ)] == HEAD_XZ
+    return b.startswith(HEAD_XZ)
 
 
 def _unwrap_bytes(b, uuids=False):
@@ -75,32 +72,21 @@ def _unwrap_bytes(b, uuids=False):
 
         return unwrap(lzma.decompress(b))
 
-    if _is_plist(b):
+    elif _is_plist(b):
         return unwrap(plistlib.loads(b))
 
-    if _is_malformed_plist(b):
+    elif _is_malformed_plist(b):
         return unwrap(plistlib.loads(b[3:]))
 
-    if uuids:
+    elif uuids:
         return _unwrap_uuids(b)
 
-    # import hashlib
-    # m = hashlib.sha1()
-    # m.update(b)
-    # with open(f"./tmp/bin/bin_{m.hexdigest()}.bin", "wb") as f:
-    #     f.write(b)
-
-    return b
+    else:
+        return b
 
 
-def _unwrap_uuids(b):
-    data = []
-    i = 0
-    while i < len(b):
-        ux = uuid.UUID(bytes=b[i : i + 16])
-        data.append(ux)
-        i = i + 16
-    return data
+def _unwrap_uuids(b: bytes):
+    return [uuid.UUID(bytes=b[i:i + 16]) for i in range(0, len(b), 16)]
 
 
 def _unwrap_dict(d: dict, orig: list = None):
@@ -152,10 +138,7 @@ def _unwrap_dict(d: dict, orig: list = None):
         return data2
 
     if NS_OBJECTS in d:
-        data2 = []
-        for v in d[NS_OBJECTS]:
-            data2.append(unwrap(v, orig))
-        return data2
+        return [unwrap(v, orig) for v in d[NS_OBJECTS]]
 
     for t in d:
         d[t] = unwrap(d[t], orig)
@@ -167,17 +150,14 @@ def _unwrap_list(l: list, orig: list = None):
     if not l:
         return []
 
-    result_list = []
-    for e in l:
-        result_list.append(unwrap(e, orig))
-    return result_list
+    return [unwrap(e, orig) for e in l]
 
 
 def unwrap(x, orig: list = None):
     if x is None:
         return ""
 
-    if isinstance(x, int) or isinstance(x, float) or isinstance(x, bool):
+    if isinstance(x, (int, float, bool)):
         return x
 
     try:
@@ -189,9 +169,7 @@ def unwrap(x, orig: list = None):
             return x
 
         if isinstance(x, str):
-            if UUID_REGEX.match(x):
-                return uuid.UUID(x)
-            return x
+            return uuid.UUID(x) if UUID_REGEX.match(x) else x
 
         if isinstance(x, dict):
             return _unwrap_dict(x, orig)
