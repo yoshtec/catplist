@@ -49,14 +49,22 @@ class TestCatPlist:
         result = runner.invoke(
             catplist.catplist, ["./tests/uuid.plist"]
         )
-        assert "{'storeUUID': UUID('3c6a9bac-1e61-4db3-ba70-470fce89729b')}" == result.output
+        assert (
+            result.output.strip()
+            == "{'storeUUID': UUID('3c6a9bac-1e61-4db3-ba70-470fce89729b')}"
+        )
+        assert result.exit_code == 0
 
     def test_uuid_json(self):
         runner = CliRunner()
         result = runner.invoke(
             catplist.catplist, ["--format", "json", "./tests/uuid.plist"]
         )
-        assert "" == result.output
+        assert (
+            result.output.strip()
+            == "{\"storeUUID\": \"3c6a9bac-1e61-4db3-ba70-470fce89729b\"}"
+        )
+        assert result.exit_code == 0
 
 
     def test_uuid_yaml(self):
@@ -64,4 +72,8 @@ class TestCatPlist:
         result = runner.invoke(
             catplist.catplist, ["--format", "yaml", "./tests/uuid.plist"]
         )
-        assert " " == result.output
+        assert (
+            result.output.strip()
+            == "storeUUID: 3c6a9bac-1e61-4db3-ba70-470fce89729b"
+        )
+        assert result.exit_code == 0
