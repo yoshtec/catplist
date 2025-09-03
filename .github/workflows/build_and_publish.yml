@@ -12,6 +12,10 @@ jobs:
     # Set the type of machine to run on
     runs-on: ubuntu-latest
 
+    permissions:
+      # IMPORTANT: this permission is mandatory for Trusted Publishing
+      id-token: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
