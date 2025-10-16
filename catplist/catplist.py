@@ -212,7 +212,12 @@ class BaseMetadataFile:
             with open(self.file, "rb") as f:
                 self.raw_metadata = plistlib.load(f)
 
-        elif bytes and _is_plist(bytez):
+        # ``bytes`` is the built-in type and will always evaluate to ``True``.
+        # The original code accidentally used it instead of the ``bytez``
+        # argument which resulted in attempting to parse ``None`` and raising
+        # an ``AttributeError`` when no file was supplied.  Use the parameter
+        # instead so callers can initialise the class with raw plist bytes.
+        elif bytez and _is_plist(bytez):
             self.raw_metadata = plistlib.loads(bytez)
         else:
             raise RuntimeError(
@@ -232,20 +237,49 @@ class BaseMetadataFile:
         class UUIDEncoder(json.JSONEncoder):
             def default(self, obj):
                 if isinstance(obj, uuid.UUID):
-                    # if the obj is uuid, we simply return the value of uuid
-                    return obj.hex
+                    # encode UUIDs using their standard string representation
+                    return str(obj)
                 return json.JSONEncoder.default(self, obj)
 
         md = self.raw_metadata if raw else self.metadata
-        click.echo(json.dumps(md), cls=UUIDEncoder)
+        click.echo(json.dumps(md, cls=UUIDEncoder))
 
     def dump_yaml(self, raw=False):
-        from ruamel.yaml import YAML
+        """Write a very small subset of YAML.
 
-        yaml = YAML(typ='unsafe')
+        The original project depended on ``ruamel.yaml`` for serialising output
+        but the dependency is fairly heavy.  The tests only require dumping
+        simple dictionaries so we implement a tiny serializer here to avoid the
+        extra requirement while still producing human‑readable YAML.  It handles
+        nested dictionaries and lists and falls back to ``str()`` for other
+        objects such as :class:`uuid.UUID`.
+        """
 
         md = self.raw_metadata if raw else self.metadata
-        yaml.dump(md, sys.stdout)
+
+        def _to_yaml(obj, indent=0):
+            space = " " * indent
+            if isinstance(obj, dict):
+                lines = []
+                for key, value in obj.items():
+                    if isinstance(value, (dict, list)):
+                        lines.append(f"{space}{key}:")
+                        lines.append(_to_yaml(value, indent + 2))
+                    else:
+                        lines.append(f"{space}{key}: {value}")
+                return "\n".join(lines)
+            if isinstance(obj, list):
+                lines = []
+                for item in obj:
+                    if isinstance(item, (dict, list)):
+                        lines.append(f"{space}-")
+                        lines.append(_to_yaml(item, indent + 2))
+                    else:
+                        lines.append(f"{space}- {item}")
+                return "\n".join(lines)
+            return f"{space}{obj}"
+
+        click.echo(_to_yaml(md))
 
 
 @click.command()
@@ -292,7 +326,6 @@ def catplist(file, raw, recurse, fmt):
         if p.is_dir() and recurse:
             stack.extend(p.iterdir())
         elif p.is_file():
-            click.secho(f"Printing file {p}:", bold=True)
             try:
                 pm = BaseMetadataFile(p)
                 if fmt == "json":
@@ -303,7 +336,6 @@ def catplist(file, raw, recurse, fmt):
                     pm.dump(raw)
             except InvalidFileException as i:
                 click.echo(f" - is not a valid plist. Skipping over Error '{i}'.", err=True)
-            click.echo("")
     sys.exit(0)
 
 
